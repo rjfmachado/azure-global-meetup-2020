@@ -30,25 +30,6 @@ resource "azurerm_public_ip" "publicip" {
   domain_name_label   = random_pet.vm.id
 }
 
-variable "cloudconfig_file" {
-  description = "The location of the cloud init configuration file."
-  default     = "base.tpl"
-}
-
-data "template_file" "cloudconfig" {
-  template = file(var.cloudconfig_file)
-}
-
-data "template_cloudinit_config" "config" {
-  gzip          = true
-  base64_encode = true
-
-  part {
-    content_type = "text/cloud-config"
-    content      = data.template_file.cloudconfig.rendered
-  }
-}
-
 resource "azurerm_linux_virtual_machine" "vm" {
   name                = random_pet.vm.id
   resource_group_name = azurerm_resource_group.rg.name
@@ -58,8 +39,6 @@ resource "azurerm_linux_virtual_machine" "vm" {
   network_interface_ids = [
     azurerm_network_interface.nic.id,
   ]
-
-  #custom_data = data.template_cloudinit_config.config.rendered
 
   admin_ssh_key {
     username   = var.adminuser
