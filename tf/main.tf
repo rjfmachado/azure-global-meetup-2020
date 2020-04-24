@@ -16,6 +16,10 @@ provider "random" {
   version = "~> 2.2"
 }
 
+provider "template" {
+  version = "~> 2.0"
+}
+
 data "azurerm_client_config" "current" {
 }
 

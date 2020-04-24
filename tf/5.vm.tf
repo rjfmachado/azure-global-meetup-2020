@@ -35,6 +35,20 @@ variable "cloudconfig_file" {
   default     = "base.tpl"
 }
 
+data "template_file" "cloudconfig" {
+  template = file(var.cloudconfig_file)
+}
+
+data "template_cloudinit_config" "config" {
+  gzip          = true
+  base64_encode = true
+
+  part {
+    content_type = "text/cloud-config"
+    content      = data.template_file.cloudconfig.rendered
+  }
+}
+
 resource "azurerm_linux_virtual_machine" "vm" {
   name                = random_pet.vm.id
   resource_group_name = azurerm_resource_group.rg.name

@@ -1,8 +1,3 @@
-variable "dockercontainer" {
-  type    = string
-  default = "jelledruyts/inspectorgadget"
-}
-
 resource "random_pet" "appsvcplan" {
   length    = 2
   prefix    = "appsvcplan"
@@ -19,8 +14,8 @@ resource "azurerm_app_service_plan" "appsvcplan" {
   name                = random_pet.appsvcplan.id
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  kind                = "Linux"
-  reserved            = true
+  reserved            = false
+  kind                = "Windows"
 
   sku {
     tier = "Standard"
@@ -37,24 +32,19 @@ resource "azurerm_app_service" "appsvc" {
   https_only = true
 
   site_config {
-    linux_fx_version = "DOCKER|${var.dockercontainer}"
-    always_on        = true
+    always_on = true
   }
 
-  lifecycle {
-    ignore_changes = [
-      site_config.0.dotnet_framework_version,
-      site_config.0.scm_type,
-      #      site_config.0.virtual_network_name,
-      site_config.0.linux_fx_version,
-      site_config.0.always_on,
-    ]
+  app_settings = {
+    "WEBSITE_DNS_SERVER"     = "168.63.129.16"
+    "WEBSITE_VNET_ROUTE_ALL" = 1
+    "ASPNETCORE_ENVIRONMENT" = "Production"
   }
 
   connection_string {
     name  = "Database"
-    type  = "SQLServer"
-    value = "Server=${azurerm_sql_server.sql.fully_qualified_domain_name}; Initial Catalog=db-${random_pet.sql.id}; User Id=${var.sqladmin} ; password=${random_password.sqlpassword.result};"
+    type  = "SQLAzure"
+    value = "Server=tcp:${azurerm_sql_server.sql.fully_qualified_domain_name},1433; Database=db-${random_pet.sql.id}; User ID=${var.sqladmin} ; password=${random_password.sqlpassword.result};"
   }
 }
 
