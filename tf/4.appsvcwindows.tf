@@ -38,7 +38,6 @@ resource "azurerm_app_service" "appsvc" {
   app_settings = {
     "WEBSITE_DNS_SERVER"     = "168.63.129.16"
     "WEBSITE_VNET_ROUTE_ALL" = 1
-    "ASPNETCORE_ENVIRONMENT" = "Production"
   }
 
   connection_string {
