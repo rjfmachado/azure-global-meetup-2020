@@ -3,7 +3,7 @@ terraform {
 }
 
 provider "azurerm" {
-  version = "~> 2.6"
+  version = "~> 2.7"
 
   features {
     virtual_machine {
